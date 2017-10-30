@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lan="en">
+	<head>
+		<meta charset="utf-8">
+    	<meta author="Mark Dickerson">
+		<title>Get Me Out Of Here!</title>
+		<script type="text/javascript" src="../lib/webgl-utils.js"></script>
+		<script type="text/javascript" src="../lib/MV.js"></script>
+		<script type="text/javascript" src="../lib/InitShaders.js"></script>
+		
+		
+		<script type="text/javascript" src="mfdickerson_proj7.js">
+			vertexShader = "vertex-shader-phong";
+			fragmentShader = "fragment-shader-phong";
+		</script>
+		
+		
+		<script id="vertex-shader-phong" type="x-shader/x-vertex">
+			attribute vec4 a_Position;
+			attribute vec3 a_Normal;
+			attribute vec2 a_TexCoord; // texture coordinate of the vertex
+
+			uniform mat4 u_Projection;
+			uniform mat4 u_ViewMatrix;
+			uniform mat4 u_ModelMatrix;
+			uniform vec3 u_LightDirection;
+			varying vec3 v_Color;
+			varying vec3 v_Position;
+			varying vec3 v_Normal;
+
+			uniform vec3 u_LightPosition;
+
+			varying vec3 v_LightPosition;
+			varying vec3 v_LightDirection;
+
+			varying vec2 v_TexCoord; // pass texture coordinates to the fragment shader
+			
+			
+			void main(){
+			
+				gl_Position = u_Projection* u_ViewMatrix*u_ModelMatrix*a_Position;
+			
+				v_Normal = mat3(u_ViewMatrix*u_ModelMatrix)*a_Normal;
+
+				v_LightPosition = (u_ViewMatrix*vec4(u_LightPosition ,1.0)).xyz;
+				
+				v_LightDirection = mat3(u_ViewMatrix)*u_LightDirection;
+
+				v_Position = (u_ViewMatrix*u_ModelMatrix*a_Position).xyz;
+				
+				
+				v_Color = abs(a_Normal);
+				v_TexCoord = a_TexCoord;
+				
+		
+				
+			}
+		</script>
+		
+		<script id="fragment-shader-phong" type="x-shader/x-fragment">
+			precision mediump float;
+			varying vec3 v_Position;
+
+			varying vec3 v_Color;
+			varying vec3 v_Normal;
+			varying vec3 v_LightPosition;
+			varying vec3 v_LightDirection;
+			uniform int u_Coloring;
+
+			varying vec2 v_TexCoord;
+			
+			uniform sampler2D u_Sampler; // our texture map
+
+			// We Need to set These in .js
+			uniform float u_Shininess;
+
+
+			uniform vec3 u_AmbientLight;
+			uniform vec3 u_DiffuseLight;
+			uniform vec3 u_SpecularLight;
+			
+			vec3 ambient, diffuse, specular;
+
+			float radAttenuation;
+			float ang;
+			float angAttenuation;
+			float cutOff;
+			
+			vec3 L, N, V, H, P;
+			void main(){
+				
+				P = v_Position;
+
+				N = normalize(v_Normal.xyz);
+				L = normalize(v_LightPosition - P);
+
+				V = normalize( -P);
+				H = normalize(L+V);
+
+				cutOff = cos(0.6);
+
+				
+				
+				
+				vec3 color = vec3(texture2D(u_Sampler, v_TexCoord));
+
+
+
+				ambient = color * u_AmbientLight;
+				diffuse = color * max(dot(L, N), 0.0)* u_DiffuseLight;
+				specular = max(color * pow(max(dot(N, H), 0.0), u_Shininess) * u_SpecularLight, 0.0) ;
+
+				radAttenuation = 1.0 / (1.0 + 0.1*length(L) +0.1*length(L)*length(L));
+				ang = dot(L,v_LightDirection);
+				angAttenuation = (ang - cutOff) / (1.0 - cutOff);
+
+				if (ang > cutOff) {
+					gl_FragColor = vec4(ambient + radAttenuation*angAttenuation*(diffuse + specular), 1.0);
+				} else {
+					gl_FragColor = vec4(ambient, 1.0);
+				}
+	
+				
+			
+				
+				
+				/*
+				P = v_Position;
+
+				N = normalize(v_Normal.xyz);
+				//L = normalize(v_LightDirection);
+				L = normalize(v_LightPosition - P);
+
+				V = normalize( -P);
+				H = normalize(L+V);
+
+				
+				
+				//ambient = v_Color * u_AmbientLight;
+				//diffuse = v_Color * max(dot(L, N), 0.0)* u_DiffuseLight;
+				//specular = max(v_Color * pow(max(dot(N, H), 0.0), //u_Shininess) * u_SpecularLight, 0.0) ;
+	
+				//gl_FragColor = vec4(ambient + diffuse + specular, 1.0);
+				
+				vec3 color = vec3(texture2D(u_Sampler, v_TexCoord));
+
+				ambient = color * u_AmbientLight;
+				diffuse = color * max(dot(L, N), 0.0)* u_DiffuseLight;
+				specular = max(color * pow(max(dot(N, H), 0.0), u_Shininess) * u_SpecularLight, 0.0) ;
+	
+				gl_FragColor = vec4(ambient + diffuse + specular, 1.0);
+				*/
+			}
+		</script>
+		
+		
+	</head>
+	<body>
+		<canvas id="gl-canvas" width="1000" height="700">
+			You need a better web browser
+		</canvas>
+		
+		<h1>Get Me Out Of Here!</h1>
+
+		<h2>Controls</h2>
+		<ul>
+			<li>W - Look Up</li>
+			<li>S - Lood Down</li>
+			<Li>A - Look Left</li>
+			<li>D - Look Right</li>
+			<li>Up Arrow - Move Forward</li>
+			<li>Down Arrow- Move Backward</li>
+			<Li>Left Arrow - Move Left</li>
+			<li>Right Arrpw - Move Right</li>
+		</ul>
+		<h2>Cool Things</h2>
+		<ul>
+			<li>Modeled movement after humans (not airplanes). The most challenging part was enabling you to look up, and then turning and walking walking forward left/right (imagine a person looking up at the clouds/ceiling while walking).</li>
+			<li>Collision Detection (see problems)</li>
+			<li>Added in angular attenuation to spotlight to give the light beam a softer more realistis edge<li>
+
+		</ul>
+		<h2>Problems</h2>
+		<ul>
+			<li>Ultimately, I failed with collision detection. I was close but it was buggy. I deleted the collision detection code from the the side-to-side and backward movement, since it wasn't working.
+			If you want to see it how it works in the forward movement, you can chance the collisionDetectin variable to true at the top of the .js file</li>
+		</ul>
+
+
+	</body>
+</html>
