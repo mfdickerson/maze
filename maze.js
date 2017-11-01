@@ -27,7 +27,7 @@ window.onload= function main(){
     var gl = initialize();
 
     var maze = new Maze(gl, 5,5);
-    console.log('v1');
+    console.log('v2');
     var camera;
 
     // Camera is positioned at start of maze
@@ -155,6 +155,10 @@ function legalMove(maze,dir,loc) {
     var target = add(loc,scalev(0.1,dir));
     //var x = Math.floor((target[0]+maze.x*2+1)/2.0);
     // var y = Math.floor((target[2]+maze.y*2+1)/2.0);
+    console.log('----------------------------------');
+    console.log(maze);
+    console.log('location: ' + loc, 'target: ' + target);
+    console.log((target[0]+maze.x*2+1)/2.0, (target[2]+maze.y*2+1)/2.0);
     
     if(dir[0] > 0){
         var x = Math.floor((target[0]+maze.x*2+1)/2.0);
