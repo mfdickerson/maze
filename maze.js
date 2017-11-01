@@ -159,13 +159,13 @@ function legalMove(maze,dir,loc) {
     if(dir[0] > 0){
         var x = Math.floor((target[0]+maze.x*2+1)/2.0);
     } else {
-        var x = Math.ciel((target[0]+maze.x*2+1)/2.0);
+        var x = Math.ceil((target[0]+maze.x*2+1)/2.0);
     }
     
     if(dir[2] > 0){
         var y = Math.floor((target[2]+maze.y*2+1)/2.0);
     } else {
-        var y = Math.ciel((target[2]+maze.y*2+1)/2.0);
+        var y = Math.ceil((target[2]+maze.y*2+1)/2.0);
     }
 
     if(maze.maze[x][y] == 0.0){ // If target location is open
