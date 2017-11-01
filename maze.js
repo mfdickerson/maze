@@ -16,7 +16,7 @@
 var vertexShader = "vertex-shader-phong";
 var fragmentShader = "fragment-shader-phong";
 
-var collisionDetection = false;
+var collisionDetection = true;
 
 
 window.onload= function main(){
