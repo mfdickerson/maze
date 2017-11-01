@@ -1,3 +1,3 @@
 [submodule "graphicsUtilities"]
 	path = graphicsUtilities
-	url = git@github.com:mfdickerson/graphicsUtilities.git
+	url = https://github.com/mfdickerson/graphicsUtilities
