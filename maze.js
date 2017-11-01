@@ -27,7 +27,7 @@ window.onload= function main(){
     var gl = initialize();
 
     var maze = new Maze(gl, 3,1);
-    console.log('v4');
+    console.log('v5');
     var camera;
 
     // Camera is positioned at start of maze
@@ -45,46 +45,13 @@ window.onload= function main(){
     
     window.onkeydown = function(e){
    
-        //keyMap[e.which] = true;
- 
+        keyMap[e.which] = true;
+      
     }
     
     window.onkeyup = function(e){
        
-         //keyMap[e.which] = false;
-        if  (e.which = 'A'.charCodeAt(0)){
-            camera.turn(-1);
-        }
-        if (e.which = 'D'.charCodeAt(0)){
-            camera.turn(1);
-        }
-        
-        if  (e.which = '38'){ // up arrow
-            var dir = normalize(vec3(camera.rotationMatrix[2][0],0.0,camera.rotationMatrix[2][2]))
-            var loc = vec3(camera.location);
-            console.log(dir);
-
-            if(collisionDetection){
-                // Collision Detection does not work yet :(
-                if (legalMove(maze,dir,loc)) {
-                    camera.forward(1.0);
-                }
-            } else {
-                camera.forward(1.0);
-            }    
-
-        }
-        if (e.which = '40'){ // down arrow
-            camera.forward(-1.0);
-
-        }
-        if  (e.which = '37'){ // up arrow
-            camera.sideways(1.0);
-            
-        }
-        if (e.which = '39'){ // down arrow
-            camera.sideways(-1.0);            
-        }
+         keyMap[e.which] = false;
 
     }
     
@@ -126,14 +93,16 @@ window.onload= function main(){
             camera.roll(.3);
         }
         */
-
-        /*-----------------
         
         if  (keyMap['A'.charCodeAt(0)]){
-            camera.turn(-1);
+            camera.turn(-90);
+            //Delete Later
+            keyMap['A'.charCodeAt(0)] = false;
         }
         if (keyMap['D'.charCodeAt(0)]){
-            camera.turn(1);
+            camera.turn(90);
+            //Delete Later
+            keyMap['D'.charCodeAt(0)] = false;
         }
         
         if  (keyMap['38']){ // up arrow
@@ -144,25 +113,33 @@ window.onload= function main(){
             if(collisionDetection){
                 // Collision Detection does not work yet :(
                 if (legalMove(maze,dir,loc)) {
-                    camera.forward(0.05);
+                    camera.forward(1.0);
+
                 }
             } else {
-                camera.forward(0.05);
-            }    
+                camera.forward(1.0);
+            } 
+            //Delete Later
+            keyMap['38'.charCodeAt(0)] = false;   
 
         }
         if (keyMap['40']){ // down arrow
-            camera.forward(-0.05);
+            camera.forward(-1.0);
+            //Delete Later
+            keyMap['40'.charCodeAt(0)] = false;
 
         }
         if  (keyMap['37']){ // up arrow
-            camera.sideways(0.05);
+            camera.sideways(1.0);
+            //Delete Later
+            keyMap['37'.charCodeAt(0)] = false;
             
         }
         if (keyMap['39']){ // down arrow
-            camera.sideways(-0.05);            
+            camera.sideways(-1.0); 
+            //Delete Later
+            keyMap['39'.charCodeAt(0)] = false;           
         }
-        */
 
         camera.set();
 
@@ -192,7 +169,7 @@ function legalMove(maze,dir,loc) {
     //var x = Math.floor((target[0]+maze.x*2+1)/2.0);
     // var y = Math.floor((target[2]+maze.y*2+1)/2.0);
     console.log('----------------------------------');
-    console.log(maze);
+    printMaze(maze.maze);
     console.log('location: ' + loc, 'target: ' + target);
     console.log((target[0]+maze.x*2+1)/2.0, (target[2]+maze.y*2+1)/2.0);
     
@@ -538,12 +515,9 @@ function Camera(gl, x, y, z) {
     }
 
     this.sideways = function(amount){
-        //var n = this.rotationMatrix[2];
-        //console.log(this.rotationMatrix[2]);
-        //console.log(this.rotationMatrix[1]);
+   
         var n = vec4(cross(this.rotationMatrix[1],this.rotationMatrix[2]),1);
         n = vec4(n[0],0.0,n[2],1.0);
-        //console.log(n);
         var displacement = scalev(-amount, n);
         this.location = add(this.location, displacement);
     }
