@@ -26,8 +26,8 @@ window.onload= function main(){
 
     var gl = initialize();
 
-    var maze = new Maze(gl, 5,5);
-    console.log('v2');
+    var maze = new Maze(gl, 3,1);
+    console.log('v3');
     var camera;
 
     // Camera is positioned at start of maze
@@ -95,10 +95,10 @@ window.onload= function main(){
         */
         
         if  (keyMap['A'.charCodeAt(0)]){
-            camera.turn(-1);
+            camera.turn(-90);
         }
         if (keyMap['D'.charCodeAt(0)]){
-            camera.turn(1);
+            camera.turn(90);
         }
         
         if  (keyMap['38']){ // up arrow
@@ -109,23 +109,23 @@ window.onload= function main(){
             if(collisionDetection){
                 // Collision Detection does not work yet :(
                 if (legalMove(maze,dir,loc)) {
-                    camera.forward(0.1);
+                    camera.forward(1.0);
                 }
             } else {
-                camera.forward(0.1);
+                camera.forward(1.0);
             }    
 
         }
         if (keyMap['40']){ // down arrow
-            camera.forward(-0.1);
+            camera.forward(-1.0);
 
         }
         if  (keyMap['37']){ // up arrow
-            camera.sideways(0.1);
+            camera.sideways(1.0);
             
         }
         if (keyMap['39']){ // down arrow
-            camera.sideways(-0.1);            
+            camera.sideways(-1.0);            
         }
 
         camera.set();
