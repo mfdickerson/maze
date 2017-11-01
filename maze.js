@@ -27,6 +27,7 @@ window.onload= function main(){
     var gl = initialize();
 
     var maze = new Maze(gl, 5,5);
+    console.log(maze.maze);
     var camera;
 
     // Camera is positioned at start of maze
@@ -153,6 +154,7 @@ function legalMove(maze,dir,loc) {
     var target = add(loc,scalev(0.1,dir));
     var x = Math.floor((target[0]+maze.x*2+1)/2.0);
     var y = Math.floor((target[2]+maze.y*2+1)/2.0);
+    console.log(target,x,7);
 
     if(maze.maze[x][y] == 0.0){ // If target location is open
         return true;
