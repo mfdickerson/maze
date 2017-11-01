@@ -27,7 +27,7 @@ window.onload= function main(){
     var gl = initialize();
 
     var maze = new Maze(gl, 3,1);
-    console.log('v3');
+    console.log('v4');
     var camera;
 
     // Camera is positioned at start of maze
@@ -45,13 +45,46 @@ window.onload= function main(){
     
     window.onkeydown = function(e){
    
-        keyMap[e.which] = true;
-        //console.log(keyMap);
+        //keyMap[e.which] = true;
+ 
     }
     
     window.onkeyup = function(e){
        
-         keyMap[e.which] = false;
+         //keyMap[e.which] = false;
+        if  (e.which = 'A'.charCodeAt(0)){
+            camera.turn(-1);
+        }
+        if (e.which = 'D'.charCodeAt(0)){
+            camera.turn(1);
+        }
+        
+        if  (e.which = '38'){ // up arrow
+            var dir = normalize(vec3(camera.rotationMatrix[2][0],0.0,camera.rotationMatrix[2][2]))
+            var loc = vec3(camera.location);
+            console.log(dir);
+
+            if(collisionDetection){
+                // Collision Detection does not work yet :(
+                if (legalMove(maze,dir,loc)) {
+                    camera.forward(1.0);
+                }
+            } else {
+                camera.forward(1.0);
+            }    
+
+        }
+        if (e.which = '40'){ // down arrow
+            camera.forward(-1.0);
+
+        }
+        if  (e.which = '37'){ // up arrow
+            camera.sideways(1.0);
+            
+        }
+        if (e.which = '39'){ // down arrow
+            camera.sideways(-1.0);            
+        }
 
     }
     
@@ -93,12 +126,14 @@ window.onload= function main(){
             camera.roll(.3);
         }
         */
+
+        /*-----------------
         
         if  (keyMap['A'.charCodeAt(0)]){
-            camera.turn(-90);
+            camera.turn(-1);
         }
         if (keyMap['D'.charCodeAt(0)]){
-            camera.turn(90);
+            camera.turn(1);
         }
         
         if  (keyMap['38']){ // up arrow
@@ -109,24 +144,25 @@ window.onload= function main(){
             if(collisionDetection){
                 // Collision Detection does not work yet :(
                 if (legalMove(maze,dir,loc)) {
-                    camera.forward(1.0);
+                    camera.forward(0.05);
                 }
             } else {
-                camera.forward(1.0);
+                camera.forward(0.05);
             }    
 
         }
         if (keyMap['40']){ // down arrow
-            camera.forward(-1.0);
+            camera.forward(-0.05);
 
         }
         if  (keyMap['37']){ // up arrow
-            camera.sideways(1.0);
+            camera.sideways(0.05);
             
         }
         if (keyMap['39']){ // down arrow
-            camera.sideways(-1.0);            
+            camera.sideways(-0.05);            
         }
+        */
 
         camera.set();
 
