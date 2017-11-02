@@ -46,6 +46,9 @@ window.onload= function main(){
     window.onkeydown = function(e){
    
         keyMap[e.which] = true;
+        if([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) {
+            e.preventDefault();
+        }
       
     }
     
@@ -169,7 +172,6 @@ function legalMove(maze,dir,loc) {
     //var x = Math.floor((target[0]+maze.x*2+1)/2.0);
     // var y = Math.floor((target[2]+maze.y*2+1)/2.0);
     console.log('----------------------------------');
-    printMaze(maze.maze);
     console.log('location: ' + loc, 'target: ' + target);
     console.log((target[0]+maze.x*2+1)/2.0, (target[2]+maze.y*2+1)/2.0);
     
