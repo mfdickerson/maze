@@ -17,21 +17,26 @@ var vertexShader = "vertex-shader-phong";
 var fragmentShader = "fragment-shader-phong";
 
 var collisionDetection = true;
+var singleStep = true;
+
+
 
 
 window.onload= function main(){
 
-
-
-
+    const speed = 0.05;
+    const turnSpeed = 3.0;
+    const sprintMultiplier = 3.0;
+    var speedMultiplier = 1.0;
     var gl = initialize();
 
-    var maze = new Maze(gl, 3,1);
-    console.log('v5');
+    var maze = new Maze(gl, 10,10);
+    console.clear();
+    console.log('v1');
     var camera;
 
     // Camera is positioned at start of maze
-    camera  = new Camera(gl, -(2*maze.x)+2*maze.start[0],0.0, -(2*maze.y)+2*maze.start[1]);
+    camera  = new Camera(gl, -(maze.wallSize*maze.x)+maze.wallSize*maze.start[0],0.0, -(maze.wallSize*maze.y)+maze.wallSize*maze.start[1]);
     
 
     Promise.all([ initializeTexture(gl, 1, 'images/rock.jpg'),
@@ -45,18 +50,20 @@ window.onload= function main(){
     
     window.onkeydown = function(e){
    
-        keyMap[e.which] = true;
+        // Space Bar, Arrow Keys
         if([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) {
             e.preventDefault();
         }
+        keyMap[e.keyCode] = true;
       
     }
     
     window.onkeyup = function(e){
        
-         keyMap[e.which] = false;
+         keyMap[e.keyCode] = false;
 
     }
+    
     
     
     /*
@@ -73,10 +80,17 @@ window.onload= function main(){
             }
             if ((yAngle < 30 && camera.rotationMatrix[2][1] < 0.0)|| camera.rotationMatrix[2][1] >= 0.0) {
                 camera.pitch(-0.5);
-            } 
+            }           
+        } 
 
-            
-        }
+        if(!keyMap['16']) {
+            speedMultiplier = 1.0;
+
+        } else {
+
+            speedMultiplier = sprintMultiplier;
+       }
+
         if (keyMap['S'.charCodeAt(0)]){
 
             var yAngle = 0.0;
@@ -98,50 +112,74 @@ window.onload= function main(){
         */
         
         if  (keyMap['A'.charCodeAt(0)]){
-            camera.turn(-90);
+            camera.turn(-turnSpeed);
             //Delete Later
-            keyMap['A'.charCodeAt(0)] = false;
+            //keyMap['A'.charCodeAt(0)] = false;
         }
         if (keyMap['D'.charCodeAt(0)]){
-            camera.turn(90);
+            camera.turn(turnSpeed);
             //Delete Later
-            keyMap['D'.charCodeAt(0)] = false;
+            //keyMap['D'.charCodeAt(0)] = false;
         }
         
         if  (keyMap['38']){ // up arrow
-            var dir = normalize(vec3(camera.rotationMatrix[2][0],0.0,camera.rotationMatrix[2][2]))
-            var loc = vec3(camera.location);
-            console.log(dir);
+            //Delete Later
+            //keyMap['38'] = false;   
+            //var dir = normalize(vec3(camera.rotationMatrix[2][0],0.0,camera.rotationMatrix[2][2]))
+            //var loc = vec3(camera.location);
+            //console.log(dir);
 
+            camera.forward(speed*speedMultiplier );
+
+            console.log(speedMultiplier);
             if(collisionDetection){
                 // Collision Detection does not work yet :(
-                if (legalMove(maze,dir,loc)) {
-                    camera.forward(1.0);
+                if (!maze.legalMove(camera.location)) {
+                    camera.forward(-speed*speedMultiplier );
 
                 }
-            } else {
-                camera.forward(1.0);
             } 
-            //Delete Later
-            keyMap['38'.charCodeAt(0)] = false;   
+            //console.log(camera.location);
+            
 
         }
         if (keyMap['40']){ // down arrow
-            camera.forward(-1.0);
+            camera.forward(-speed*speedMultiplier );
+            if(collisionDetection){
+                // Collision Detection does not work yet :(
+                if (!maze.legalMove(camera.location)) {
+                    camera.forward(speed*speedMultiplier );
+
+                }
+            } 
             //Delete Later
-            keyMap['40'.charCodeAt(0)] = false;
+            //keyMap['40'] = false;
 
         }
-        if  (keyMap['37']){ // up arrow
-            camera.sideways(1.0);
+        if  (keyMap['37']){ // left arrow
+            camera.sideways(speed*speedMultiplier );
+            if(collisionDetection){
+                // Collision Detection does not work yet :(
+                if (!maze.legalMove(camera.location)) {
+                    camera.sideways(-speed*speedMultiplier );
+
+                }
+            } 
             //Delete Later
-            keyMap['37'.charCodeAt(0)] = false;
+            //keyMap['37'] = false;
             
         }
-        if (keyMap['39']){ // down arrow
-            camera.sideways(-1.0); 
+        if (keyMap['39']){ // right arrow
+            camera.sideways(-speed*speedMultiplier  ); 
+            if(collisionDetection){
+                // Collision Detection does not work yet :(
+                if (!maze.legalMove(camera.location)) {
+                    camera.sideways(speed*speedMultiplier );
+
+                }
+            } 
             //Delete Later
-            keyMap['39'.charCodeAt(0)] = false;           
+            //keyMap['39'] = false;           
         }
 
         camera.set();
@@ -164,36 +202,7 @@ window.onload= function main(){
     render();
 }
 
-/* Checks to see if move in from loc in direction of dir will run into wall
-*/
-function legalMove(maze,dir,loc) {
 
-    //var target = add(loc,scalev(0.1,dir));
-    var target = add(loc,scalev(1.0,dir));
-    //var x = Math.floor((target[0]+maze.x*2+1)/2.0);
-    // var y = Math.floor((target[2]+maze.y*2+1)/2.0);
-    console.log('----------------------------------');
-    console.log('location: ' + loc, 'target: ' + target);
-    console.log((target[0]+maze.x*2+1)/2.0, (target[2]+maze.y*2+1)/2.0);
-    
-    if(dir[0] > 0){
-        var x = Math.floor((target[0]+maze.x*2+1)/2.0);
-    } else {
-        var x = Math.ceil((target[0]+maze.x*2+1)/2.0);
-    }
-    
-    if(dir[2] > 0){
-        var y = Math.floor((target[2]+maze.y*2+1)/2.0);
-    } else {
-        var y = Math.ceil((target[2]+maze.y*2+1)/2.0);
-    }
-
-    if(maze.maze[x][y] == 0.0){ // If target location is open
-        return true;
-    } else{
-        return false;
-    } 
-}
 
 
 
@@ -274,6 +283,7 @@ function Maze(gl, x,y) {
     this.start = [0,0];
 
     var maze = new Array(2*x+1);
+    this.wallSize = 2.5;
 
     for (var i = 0; i < 2*x+1; i++){
         maze[i] = new Array(2*y+1);
@@ -350,6 +360,22 @@ function Maze(gl, x,y) {
         }
 
     }
+
+    /* Checks to see if move in from loc in direction of dir will run into wall
+    */
+    this.legalMove = function(loc) {
+
+        var x = Math.floor(loc[0]/this.wallSize+this.x+0.5);
+        var y = Math.floor(loc[2]/this.wallSize+this.y+0.5);
+     
+
+        if(this.maze[x][y] == 0.0){ // If target location is open
+            return true;
+        } else{
+            return false;
+        } 
+    }
+
     /*
     * Draw's maze
     */
@@ -357,7 +383,7 @@ function Maze(gl, x,y) {
 
         cube = new Cube(gl);
 
-                gl.activeTexture(gl.TEXTURE0);
+        gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
         gl.vertexAttribPointer(gl.a_TexCoord, 2, gl.FLOAT, false,  0,0);
         
@@ -372,7 +398,8 @@ function Maze(gl, x,y) {
 
 
                     gl.matrixStack.push(gl.currentTransform);   
-                    gl.currentTransform = mult(gl.currentTransform, translate(-(2*x)+2*i, 0.0,-(2*y)+2*j)); 
+                    gl.currentTransform = mult(gl.currentTransform, translate(-(this.wallSize*x)+this.wallSize*i, 0.0,-(this.wallSize*y)+this.wallSize*j)); 
+                    gl.currentTransform = mult(gl.currentTransform, scale(this.wallSize,this.wallSize,this.wallSize));
                     cube.draw();
                     gl.currentTransform = gl.matrixStack.pop();
                 } else {
@@ -380,7 +407,8 @@ function Maze(gl, x,y) {
                     gl.uniform1i(gl.u_Sampler,2);
 
                     gl.matrixStack.push(gl.currentTransform);   
-                    gl.currentTransform = mult(gl.currentTransform, translate(-(2*x)+2*i, -2.0,-(2*y)+2*j)); 
+                    gl.currentTransform = mult(gl.currentTransform, translate(-(this.wallSize*x)+this.wallSize*i, -this.wallSize,-(this.wallSize*y)+this.wallSize*j)); 
+                    gl.currentTransform = mult(gl.currentTransform, scale(this.wallSize,this.wallSize,this.wallSize));
                     cube.draw();
                     gl.currentTransform = gl.matrixStack.pop();
                     
@@ -389,7 +417,8 @@ function Maze(gl, x,y) {
 
 
                     gl.matrixStack.push(gl.currentTransform);   
-                    gl.currentTransform = mult(gl.currentTransform, translate(-(2*x)+2*i, 2.0,-(2*y)+2*j)); 
+                    gl.currentTransform = mult(gl.currentTransform, translate(-(this.wallSize*x)+this.wallSize*i, this.wallSize,-(this.wallSize*y)+this.wallSize*j)); 
+                    gl.currentTransform = mult(gl.currentTransform, scale(this.wallSize,this.wallSize,this.wallSize));
                     cube.draw();
                     gl.currentTransform = gl.matrixStack.pop();
                 }
@@ -615,12 +644,12 @@ function Cube(gl){
    
     // vertices of the cube, we are duplicating points because the faces have different normals
     var vertices  = new Float32Array([
-          1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0,-1.0, 1.0,  1.0,-1.0, 1.0, // front face
-          1.0, 1.0, 1.0,  1.0,-1.0, 1.0,  1.0,-1.0,-1.0,  1.0, 1.0,-1.0, // right face
-          1.0, 1.0,-1.0,  1.0,-1.0,-1.0, -1.0,-1.0,-1.0, -1.0, 1.0,-1.0, // back face
-         -1.0, 1.0,-1.0, -1.0,-1.0,-1.0, -1.0,-1.0, 1.0, -1.0, 1.0, 1.0, // left face
-          1.0, 1.0, 1.0,  1.0, 1.0,-1.0, -1.0, 1.0,-1.0, -1.0, 1.0, 1.0, // top face
-          1.0,-1.0, 1.0, -1.0,-1.0, 1.0, -1.0,-1.0,-1.0,  1.0,-1.0,-1.0, // bottom face
+          0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5,-0.5, 0.5,  0.5,-0.5, 0.5, // front face
+          0.5, 0.5, 0.5,  0.5,-0.5, 0.5,  0.5,-0.5,-0.5,  0.5, 0.5,-0.5, // right face
+          0.5, 0.5,-0.5,  0.5,-0.5,-0.5, -0.5,-0.5,-0.5, -0.5, 0.5,-0.5, // back face
+         -0.5, 0.5,-0.5, -0.5,-0.5,-0.5, -0.5,-0.5, 0.5, -0.5, 0.5, 0.5, // left face
+          0.5, 0.5, 0.5,  0.5, 0.5,-0.5, -0.5, 0.5,-0.5, -0.5, 0.5, 0.5, // top face
+          0.5,-0.5, 0.5, -0.5,-0.5, 0.5, -0.5,-0.5,-0.5,  0.5,-0.5,-0.5, // bottom face
     ]);
     
     
@@ -634,12 +663,12 @@ function Cube(gl){
     ]);
     
     var textureCoordinates = new Float32Array([
-       1.0, 1.0,  0.0, 1.0, 0.0, 0.0, 1.0, 0.0, // front face
-       1.0, 1.0,  0.0, 1.0, 0.0, 0.0, 1.0, 0.0, // right face
-       1.0, 1.0,  0.0, 1.0, 0.0, 0.0, 1.0, 0.0, // back face
-       1.0, 1.0,  0.0, 1.0, 0.0, 0.0, 1.0, 0.0, // left face
-       1.0, 1.0,  0.0, 1.0, 0.0, 0.0, 1.0, 0.0, // top face
-       1.0, 1.0,  0.0, 1.0, 0.0, 0.0, 1.0, 0.0 // bottom face
+       0.5, 0.5,  0.0, 0.5, 0.0, 0.0, 0.5, 0.0, // front face
+       0.5, 0.5,  0.0, 0.5, 0.0, 0.0, 0.5, 0.0, // right face
+       0.5, 0.5,  0.0, 0.5, 0.0, 0.0, 0.5, 0.0, // back face
+       0.5, 0.5,  0.0, 0.5, 0.0, 0.0, 0.5, 0.0, // left face
+       0.5, 0.5,  0.0, 0.5, 0.0, 0.0, 0.5, 0.0, // top face
+       0.5, 0.5,  0.0, 0.5, 0.0, 0.0, 0.5, 0.0 // bottom face
     ]);
     
 
