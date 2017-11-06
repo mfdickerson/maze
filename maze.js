@@ -241,7 +241,7 @@ function initialize() {
     
     
     // set the perspective projection
-    var projection  = perspective(70, canvas.width/canvas.height, 1, 800);
+    var projection  = perspective(70, canvas.width/canvas.height, 0.1, 800);
     gl.uniformMatrix4fv(gl.u_Projection, false, flatten(projection));
     
     // BEGIN LIGHTING SETUP
@@ -398,7 +398,7 @@ function Maze(gl, x,y) {
 
 
                     gl.matrixStack.push(gl.currentTransform);   
-                    gl.currentTransform = mult(gl.currentTransform, translate(-(this.wallSize*x)+this.wallSize*i, 0.0,-(this.wallSize*y)+this.wallSize*j)); 
+                    gl.currentTransform = mult(gl.currentTransform, translate(this.wallSize*(i-x), 0.0,this.wallSize*(j-y))); 
                     gl.currentTransform = mult(gl.currentTransform, scale(this.wallSize,this.wallSize,this.wallSize));
                     cube.draw();
                     gl.currentTransform = gl.matrixStack.pop();
@@ -407,7 +407,7 @@ function Maze(gl, x,y) {
                     gl.uniform1i(gl.u_Sampler,2);
 
                     gl.matrixStack.push(gl.currentTransform);   
-                    gl.currentTransform = mult(gl.currentTransform, translate(-(this.wallSize*x)+this.wallSize*i, -this.wallSize,-(this.wallSize*y)+this.wallSize*j)); 
+                    gl.currentTransform = mult(gl.currentTransform, translate(this.wallSize*(i-x), -this.wallSize,this.wallSize*(j-y))); 
                     gl.currentTransform = mult(gl.currentTransform, scale(this.wallSize,this.wallSize,this.wallSize));
                     cube.draw();
                     gl.currentTransform = gl.matrixStack.pop();
@@ -417,7 +417,7 @@ function Maze(gl, x,y) {
 
 
                     gl.matrixStack.push(gl.currentTransform);   
-                    gl.currentTransform = mult(gl.currentTransform, translate(-(this.wallSize*x)+this.wallSize*i, this.wallSize,-(this.wallSize*y)+this.wallSize*j)); 
+                    gl.currentTransform = mult(gl.currentTransform, translate(this.wallSize*(i-x), this.wallSize,this.wallSize*(j-y))); 
                     gl.currentTransform = mult(gl.currentTransform, scale(this.wallSize,this.wallSize,this.wallSize));
                     cube.draw();
                     gl.currentTransform = gl.matrixStack.pop();
